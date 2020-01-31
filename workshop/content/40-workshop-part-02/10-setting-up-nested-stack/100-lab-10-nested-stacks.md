@@ -4,18 +4,13 @@ date: 2019-11-13T16:52:42Z
 weight: 100
 ---
 
-{{% notice warning %}} 
-Hi there, thank you for the interest in the CFN201 - Workshop. Currently the Part 02 of the workshop is under development.
-{{% /notice %}}
-
 ## Introduction
 
-Your CloudFormation template has grown considerably over the course of this workshop. As your infrastructure grows, common 
-patterns can emerge in which you declare the same components in each of your templates. 
+Your CloudFormation template has grown considerably throughout this workshop. As your infrastructure grows, common patterns can emerge in which you declare the same components in each of your templates. 
 
 For example, you may wish to enable Systems Manager Session Manager access to every EC2 Instance. Instead of copying and 
 pasting the same IAM role configuration, you can create a dedicated template containing the IAM role for the instance. You 
-can then use this template like a resource via `AWS::CloudFormation::Stack`
+can then use this template as a resource via `AWS::CloudFormation::Stack`.
 
 ## Lab Overview
 
@@ -23,20 +18,20 @@ In this lab, you will build:
 
 1. **The _root_ stack** (which is also a parent stack for the first level stacks). This root stack will contain all the other stacks.
 1. **The VPC stack**. This contains a simple VPC template which the EC2 instance will be placed into.
-1. **The IAM instance role stack**. This contains the IAM instance role template decoupled form your EC2 template. 
+1. **The IAM instance role stack**. This contains the IAM instance role template decoupled from your EC2 template. 
 1. **The EC2 stack**. This contains the EC2 instance you have defined in your previous CloudFormation template.
 
-Top level and first level hierarchy of nested stacks.
+Here is a diagram showing the hierarchy of nested stacks.
 
 ![nested-stack-hierarchy](../nested-stack-hierarchy.png)
 
-The following diagram represents high level overview of the infrastructure:
+The next diagram represents the high-level overview of the infrastructure:
 
 ![nested-stack-architecture](../ns-architecture.png)
 
-You will find the working directory in `code/60-setting-up-nested-stack/01-working directory`. In the rest of this lab you should add your code to the templates here.
+You will find the working directory in `code/60-setting-up-nested-stack/01-working directory`. In the rest of this lab, you should add your code to the templates here.
 
-You can find the working solution in `code/60-setting-up-nested-stack/02-solution`. You can reference this against your code.
+You can find the working solutions in `code/60-setting-up-nested-stack/02-solution`. You can reference this against your code.
 
 **Let's start..**
 
@@ -48,12 +43,12 @@ It looks like this:
 
 ```yaml
 Resources:
-    NestedStackExample
-        Type: AWS::CloudFormation::Stack
-        Properties: 
-            Parameters: 
-                ExampleKey: ExampleValue
-            TemplateURL: "Path/To/Template"
+  NestedStackExample
+    Type: AWS::CloudFormation::Stack
+    Properties: 
+      Parameters: 
+        ExampleKey: ExampleValue
+      TemplateURL: "Path/To/Template"
 ```
 
 The `TemplateURL` property is used to reference the CloudFormation template that you wish to nest.
@@ -62,24 +57,22 @@ The `Parameters` property allows you to pass parameters to your nested CloudForm
 
 ### Prepare S3 bucket
 
-Whilst single templates can be deployed from your local machine, Nested Stacks require that the nested templates are stored in an S3 bucket.
-In the very first lab, you have created simple
-CloudFormation template which created S3 bucket. Please make a note of the bucket name.
+Whilst single templates can be deployed from your local machine, Nested Stacks require that the nested templates are stored in an S3 bucket. In the very first lab, you created a simple CloudFormation template which created an S3 bucket. Please make a note of the bucket name.
 
 For example:
 
 Bucket name: `cfn-workshop-s3-s3bucket-2cozhsniu50t`
 
-If you dont have S3 bucket, please go back to [Lab01](../../30-cloudformation-fundamentals/200-lab-01-stack) and create one.
+If you don't have an S3 bucket, please go back to [Lab01](../../../30-workshop-part-01/10-cloudformation-fundamentals/200-lab-01-stack) and create one.
 
 ### Create VPC Nested Stack
 
-The VPC template has been created for you. It is titled `vpc.yaml`. This template will create VPC stack with 2 Public Subnets, Internet Gateway, and Route tables.
+The VPC template has been created for you. It is titled `vpc.yaml`. This template will create VPC stack with 2 Public Subnets, an Internet Gateway, and Route tables.
 
 #### 1. Create VPC parameters in main template
 
 {{% notice note %}} 
-All of the files referenced in this lab can be found within `code/60-setting-up-nested-stack/01-working`
+All of the files referenced in this lab can be found within `code/60-setting-up-nested-stack/01-working directory`
 {{% /notice %}}
 
 If you look in the file `vpc.yaml` file, you will notice that there are some parameters in the _Parameters_ section of the template.
@@ -117,8 +110,8 @@ The parameters are added to the main template so that they can be passed to the 
     Default: 10.0.1.0/24
 ```
 
-#### 2. Create VPC resource in main template
-In the code below, note that passing parameter values to resources works the same as if using a single standalone template. Make sure that parameter name in the main template matches parameter name in the VPC template.
+#### 2. Create the VPC resource in the main template
+In the code below, note that passing parameter values to resources is done in the same way as using a single standalone template. Make sure that parameter name in the main template matches parameter name in the VPC template.
 
 Add this code in the _Resources_ section of the main template (`main.yaml`)
 
@@ -126,17 +119,13 @@ Add this code in the _Resources_ section of the main template (`main.yaml`)
   VpcStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/vpc.yaml
+      TemplateURL: !Sub https://${S3BucketName}.s3.${AWS::Region}.${AWS::URLSuffix}/vpc.yaml
       TimeoutInMinutes: 20
       Parameters:
-        AvailabilityZones:
-          Fn::Join:
-            - ','
-            - !Ref AvailabilityZones
+        AvailabilityZones: !Join [',', !Ref AvailabilityZones]
         VPCCidr: !Ref VPCCidr
         VPCName: !Ref VPCName
-        PublicSubnet1Cidr: !Ref PublicSubnet1Cidr
-        PublicSubnet2Cidr: !Ref PublicSubnet2Cidr
+        PublicSubnetCidrs: !Join [',', [!Ref PublicSubnet1Cidr, !Ref PublicSubnet2Cidr]]
 ```
 
 #### 3. Upload the VPC stack to S3
@@ -154,8 +143,8 @@ Add this code in the _Resources_ section of the main template (`main.yaml`)
 1. Choose a file `main.yaml`.
 1. Enter a stack name. For example, cfn-workshop-nested-stack
 1. For the `AvailabilityZones` parameter, select 2 AZs.
-1. Fo the `S3BucketName` provide the name of the bucket you have wrote down in "Prepare S3 bucket" section.
-1. You can leave rest of the parameters default.
+1. For the `S3BucketName` provide the name of the bucket you have noted down in "Prepare S3 bucket" section.
+1. You can leave the rest of the parameters default.
 1. Navigate through the wizard leaving everything default.
 1. Acknowledge IAM capabilities and click on _Create stack_
 
@@ -163,9 +152,9 @@ Add this code in the _Resources_ section of the main template (`main.yaml`)
 
 #### 1. Prepare IAM role template
 
-The IAM instance role resource has been removed from ec2 template for you.
+The IAM instance role resource has been removed from the ec2 template for you.
 
-1. Open `code/60-setting-up-nested-stack/01-working directory/02-lab10-iam.yaml`.
+1. Open `code/60-setting-up-nested-stack/01-working directory/iam.yaml`.
 1. Copy the code below to the _Resources_ section of the template.
 
 ```yaml
@@ -198,7 +187,7 @@ Copy the code below to the _Resources_ section of the `main.yaml` template.
   IamStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/iam.yaml
+      TemplateURL: !Sub https://${S3BucketName}.s3.${AWS::Region}.${AWS::URLSuffix}/iam.yaml
       TimeoutInMinutes: 10
 ```
 
@@ -247,7 +236,7 @@ Copy the code below to the _Resources_ section of the `main.yaml` template.
   EC2Stack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/ec2.yaml
+      TemplateURL: !Sub https://${S3BucketName}.s3.${AWS::Region}.${AWS::URLSuffix}/ec2.yaml
       TimeoutInMinutes: 20
 ```
 
@@ -258,7 +247,7 @@ Add the `EnvironmentType` parameter to the EC2 stack in the `main.yaml template`
   EC2Stack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/ec2.yaml
+      TemplateURL: !Sub https://${S3BucketName}.s3.${AWS::Region}.${AWS::URLSuffix}/ec2.yaml
       TimeoutInMinutes: 20
       Parameters:
         EnvironmentType: !Ref EnvironmentType
@@ -327,7 +316,7 @@ Add `VpcId` and `SubnetId` parameters to the EC2 stack in the `main.yaml` templa
   EC2Stack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/ec2.yaml
+      TemplateURL: !Sub https://${S3BucketName}.s3.${AWS::Region}.${AWS::URLSuffix}/ec2.yaml
       TimeoutInMinutes: 20
       Parameters:
         EnvironmentType: !Ref EnvironmentType
@@ -361,7 +350,7 @@ Add the `WebServerInstanceProfile` parameter to the EC2 stack in the `main.yaml`
   EC2Stack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/ec2.yaml
+      TemplateURL: !Sub https://${S3BucketName}.s3.${AWS::Region}.${AWS::URLSuffix}/ec2.yaml
       TimeoutInMinutes: 20
       Parameters:
         EnvironmentType: !Ref EnvironmentType
@@ -387,8 +376,8 @@ Update your previously created stack with a new parent template.
 
 ## Making changes to nested stacks
 
-It's possible to change components of a nested stack. For example, you may edit the properties of a resource in a stack, or add a resource. First, make the updates to the required stacks. Then upload the changed nested templates to S3. Finally, redeploy the parent stack to update the entire nested stack
+It is possible to change components of a nested stack. For example, you may edit the properties of a resource in a stack, or add a resource. First, make the updates to the required stacks. Then upload the changed nested templates to S3. Finally, redeploy the parent stack to update the entire nested stack
 
 ## Conclusion
 
-Nested stacks are allow you to compose CloudFormation templates. This allows you to decompose large templates into smaller reusable components. It also assists in avoid resource limits of a single template. These components are defined in a template like any other CloudFormation resource.
+Nested stacks allow you to compose CloudFormation template modules. This allows you to decompose large templates into smaller reusable components. It also assists in avoiding the resource limits of a single template. These components are defined in a template like any other CloudFormation resource.

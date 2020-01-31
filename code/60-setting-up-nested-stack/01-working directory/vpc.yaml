@@ -1,4 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
+
 Description: CFN 201 Workshop - Amazon VPC template.
 
 Parameters:
@@ -16,17 +17,9 @@ Parameters:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
 
-  PublicSubnet1Cidr:
-    Type: String
-    Description: The CIDR block for the public subnet located in Availability Zone 1.
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
-
-  PublicSubnet2Cidr:
-    Type: String
-    Description: The CIDR block for the public subnet located in Availability Zone 2.
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+  PublicSubnetCidrs:
+    Type: CommaDelimitedList
+    Description: The CIDR blocks for the public subnets.
 
 Resources:
   VPC:
@@ -43,7 +36,7 @@ Resources:
   VPCPublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
-      CidrBlock: !Ref PublicSubnet1Cidr
+      CidrBlock: !Select [0, !Ref PublicSubnetCidrs]
       VpcId: !Ref VPC
       AvailabilityZone: !Select [0, !Ref AvailabilityZones]
       MapPublicIpOnLaunch: true
@@ -83,7 +76,7 @@ Resources:
   VPCPublicSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
-      CidrBlock: !Ref PublicSubnet2Cidr
+      CidrBlock: !Select [1, !Ref PublicSubnetCidrs]
       VpcId: !Ref VPC
       AvailabilityZone: !Select [1, !Ref AvailabilityZones]
       MapPublicIpOnLaunch: true

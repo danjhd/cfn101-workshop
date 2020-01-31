@@ -1,5 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
+
 Description: CFN 201 Workshop - AWS IAM template.
+
 Resources:
   # Copy the code here
 
