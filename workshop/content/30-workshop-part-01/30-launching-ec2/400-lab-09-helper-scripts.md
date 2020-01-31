@@ -5,9 +5,9 @@ weight: 400
 ---
 
 ### Overview
-In this lab we will look into CloudFormation [Helper Scripts](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-helper-scripts-reference.html). What you have learned in previous lab is a great starting point. However as you may noticed from your `UserData` example, procedural scripting is not ideal. You have deployed a simple PHP application, but imagine trying to write much more complicated app in userdata. That would be very tricky.
+In this lab, we will look into CloudFormation [Helper Scripts](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-helper-scripts-reference.html). What you have learned in the previous lab is a great starting point. However as you may have noticed from your `UserData` example, procedural scripting is not ideal. You have deployed a simple PHP application, but imagine trying to write a much more complicated app in userdata. That would be very tricky.
 
-To solve this problem, CloudFormation provides helper scripts. These helper scripts make CloudFormation a lot more powerful and enable you to fine tune templates to better fit your use case. For example, you can update application configuration without recreating an instance.
+To solve this problem, CloudFormation provides helper scripts. These helper scripts make CloudFormation a lot more powerful and enable you to fine-tune templates to better fit your use case. For example, you can update the application configuration without recreating an instance.
 
 The helper scripts come pre-installed on Amazon Linux and can be updated periodically by using `yum install -y aws-cfn-bootstrap`
 
@@ -30,12 +30,14 @@ In this lab you will learn:
 
 #### 1. Configure _Metadata_ section
 
-You need to use the `AWS::CloudFormation::Init` type to include metadata for an Amazon EC2 instance. When your template calls the `cfn-init` script, the script will look for resources in metadata section. Let's add the metadata to your template:
+You need to use the `AWS::CloudFormation::Init` type to include metadata for an Amazon EC2 instance. When your template calls the `cfn-init` script, the script will look for resources in the metadata section. Let's add the metadata to your template:
 
-    WebServerInstance:
-      Type: AWS::EC2::Instance
-      Metadata:
-        AWS::CloudFormation::Init:
+```yaml
+  WebServerInstance:
+    Type: AWS::EC2::Instance
+    Metadata:
+      AWS::CloudFormation::Init:
+```
 
 #### 2. Configure cfn-init
 The configuration of `cfn-init` is separated into sections. The configuration sections are processed in the following order: packages, groups, users, sources, files, commands, and then services.
@@ -45,7 +47,7 @@ If you require a different order, separate your sections into different config k
 {{% /notice %}}
 
 {{% notice info %}}
-It is important to preserve indentation as shown in the code samples below. You can cross reference your template against the solution code `code/30-launching-ec2/08-lab09-HelperScripts-Solution.yaml` file.
+It is important to preserve indentation as shown in the code samples below. You can cross-reference your template against the solution code `code/30-launching-ec2/08-lab09-HelperScripts-Solution.yaml` file.
 {{% /notice %}}
 
 ##### 1. Install HTTPD and PHP packages
@@ -54,72 +56,78 @@ Your instance is running Amazon Linux 2, so you will use `yum` package manager t
 
 Add the code from `packages` key to your template.
 
-    WebServerInstance:
-      Type: AWS::EC2::Instance
-      Metadata:
-        AWS::CloudFormation::Init:
-          config:
-            packages:
-              yum:
-                httpd: []
-                php: []
+```yaml
+  WebServerInstance:
+    Type: AWS::EC2::Instance
+    Metadata:
+      AWS::CloudFormation::Init:
+        config:
+          packages:
+            yum:
+              httpd: []
+              php: []
+```
 
 ##### 2. Create index.php file
 Use the _files_ key to create files on the EC2 instance. The content can either be specified inline in the template, or as a URL that is retrieved by the instance.
 
 Add the code from `files` key to your template.
 
-    WebServerInstance:
-      Type: AWS::EC2::Instance
-      Metadata:
-        AWS::CloudFormation::Init:
-          config:
-            packages: \
-              {...}
-            files:
-              /var/www/html/index.php:
-                content: |
-                  <!DOCTYPE html>
-                  <html>
-                  <body>
-                    <center>
-                      <?php
-                      # Get the instance ID from meta-data and store it in the $instance_id variable
-                      $url = "http://169.254.169.254/latest/meta-data/instance-id";
-                      $instance_id = file_get_contents($url);
-                      # Get the instance's availability zone from metadata and store it in the $zone variable
-                      $url = "http://169.254.169.254/latest/meta-data/placement/availability-zone";
-                      $zone = file_get_contents($url);
-                      ?>
-                      <h2>EC2 Instance ID: <?php echo $instance_id ?></h2>
-                      <h2>Availability Zone: <?php echo $zone ?></h2>
-                    </center>
-                  </body>
-                  </html>
-                mode: 000644
-                owner: apache
-                group: apache
+```yaml
+  WebServerInstance:
+    Type: AWS::EC2::Instance
+    Metadata:
+      AWS::CloudFormation::Init:
+        config:
+          packages: \
+            {...}
+          files:
+            /var/www/html/index.php:
+              content: |
+                <!DOCTYPE html>
+                <html>
+                <body>
+                  <center>
+                    <?php
+                    # Get the instance ID from meta-data and store it in the $instance_id variable
+                    $url = "http://169.254.169.254/latest/meta-data/instance-id";
+                    $instance_id = file_get_contents($url);
+                    # Get the instance's availability zone from metadata and store it in the $zone variable
+                    $url = "http://169.254.169.254/latest/meta-data/placement/availability-zone";
+                    $zone = file_get_contents($url);
+                    ?>
+                    <h2>EC2 Instance ID: <?php echo $instance_id ?></h2>
+                    <h2>Availability Zone: <?php echo $zone ?></h2>
+                  </center>
+                </body>
+                </html>
+              mode: 000644
+              owner: apache
+              group: apache
+```
 
-##### 3. Enable and start Apache web server
+##### 3. Enable and start Apache webserver
 
 You can use the `services` key to define which services should be enabled or disabled when the instance is launched. On Linux systems, this key is supported by using the `sysvinit` key.
 
 Add the code from `services` key to your template.
 
-    WebServerInstance:
-      Type: AWS::EC2::Instance
-      Metadata:
-        AWS::CloudFormation::Init:
-          config:
-            packages:
-              {...}
-            files:
-              {...}
-            services:
-              sysvinit:
-                httpd:
-                  enabled: true
-                  ensureRunning: true
+```yaml
+  WebServerInstance:
+    Type: AWS::EC2::Instance
+    Metadata:
+      AWS::CloudFormation::Init:
+        config:
+          packages:
+            {...}
+          files:
+            {...}
+          services:
+            sysvinit:
+              httpd:
+                enabled: true
+                ensureRunning: true
+```
 
 ##### 4. Call `cfn-init` script
 
@@ -129,17 +137,51 @@ In the code below, CloudFormation will first update the `aws-cfn-bootstrap` pack
 
 Add the code from `UserData` property to your template.
 
-    UserData:
-      Fn::Base64:
-        !Sub |
-          #!/bin/bash -xe
-          # Update aws-cfn-bootstrap to the latest
-          yum install -y aws-cfn-bootstrap
-          # Call cfn-init script to install files and packages
-          /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource WebServerInstance --region ${AWS::Region}
+```yaml
+      UserData:
+        Fn::Base64:
+          !Sub |
+            #!/bin/bash -xe
+            # Update aws-cfn-bootstrap to the latest
+            yum install -y aws-cfn-bootstrap
+            # Call cfn-init script to install files and packages
+            /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource WebServerInstance --region ${AWS::Region}
+```
+
+{{%expand "Want to see why YAML rules over JSON?" %}}
+
+Because of the `|` operator in YAML `UserData` (and other multi-line strings) can be defined without using the `Fn::Join` function and so become much easier to read.
+
+```json
+      {
+        ...
+        "UserData": {"Fn::Base64":
+          {"Fn::Join": [
+            "",
+            [
+              "#!/bin/bash -xe\n",
+              "# Update aws-cfn-bootstrap to the latest\n",
+              "yum install -y aws-cfn-bootstrap\n",
+              "# Call cfn-init script to install files and packages\n"
+              "/opt/aws/bin/cfn-init -v ",
+              "         --stack ", {"Ref", "AWS::StackName"},
+              "         --resource WebServerInstance ",
+              "         --region ", {"Ref", "AWS::Region"}, "\n"
+              "# Call cfn-signal script to send a signal with exit code\n"
+              "/opt/aws/bin/cfn-signal ",
+              "         --exit-code $? ",
+              "         --stack ", {"Ref", "AWS::StackName"},
+              "         --resource WebServerInstance ",
+              "         --region ", {"Ref", "AWS::Region"}, "\n"
+            ]]}}
+        ...
+      }
+```
+{{% /expand %}}
+
 
 {{% notice note %}}
-The intrinsic function `!Sub` will dynamically replace values in `${AWS::StackName}` and `${AWS::Region}` variables.
+This is the first time we have seen some of the [Psuedo Parameters](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html) available for use in CloudFormation. They are extremely useful, allowing us access to stack or environment specific values that are supplied at runtime. We are using `AWS::StackName` and `AWS::Region` here and `!Sub` function will replace these values just like any other parameter.
 {{% /notice %}}
 
 #### 3. Configure cfn-hup
@@ -154,65 +196,67 @@ Installing the `cfn-hup` helper script enables existing EC2 instances to apply t
 1. Copy the code from both files to your template.
 
     ```bash
-   WebServerInstance:
-     Type: AWS::EC2::Instance
-     Metadata:
-       AWS::CloudFormation::Init:
-         config:
-           packages:
-             {...}
-           files:
-             /var/www/html/index.php:
-               {...}
-             /etc/cfn/cfn-hup.conf:
-               content: !Sub |
-                 [main]
-                 stack=${AWS::StackId}
-                 region=${AWS::Region}
-                 interval=1
-               mode: 000400
-               owner: root
-               group: root
-             /etc/cfn/hooks.d/cfn-auto-reloader.conf:
-               content: !Sub |
-                 [cfn-auto-reloader-hook]
-                 triggers=post.update
-                 path=Resources.WebServerInstance.Metadata.AWS::CloudFormation::Init
-                 action=/opt/aws/bin/cfn-init --stack ${AWS::StackName} --resource WebServerInstance --region ${AWS::Region}
-                 runas=root
-           services:
-             {...}
+      WebServerInstance:
+        Type: AWS::EC2::Instance
+        Metadata:
+          AWS::CloudFormation::Init:
+            config:
+              packages:
+                {...}
+              files:
+                /var/www/html/index.php:
+                  {...}
+                /etc/cfn/cfn-hup.conf:
+                  content: !Sub |
+                    [main]
+                    stack=${AWS::StackId}
+                    region=${AWS::Region}
+                    interval=1
+                  mode: 000400
+                  owner: root
+                  group: root
+                /etc/cfn/hooks.d/cfn-auto-reloader.conf:
+                  content: !Sub |
+                    [cfn-auto-reloader-hook]
+                    triggers=post.update
+                    path=Resources.WebServerInstance.Metadata.AWS::CloudFormation::Init
+                    action=/opt/aws/bin/cfn-init --stack ${AWS::StackName} --resource WebServerInstance --region ${AWS::Region}
+                    runas=root
+              services:
+                {...}
     ```
 
-1. Enable and start `cfn-hup` in `services` section of the template.
+1. Enable and start `cfn-hup` in the `services` section of the template.
 
     Add the code from `services` key to your template.
 
-        WebServerInstance:
-          Type: AWS::EC2::Instance
-          Metadata:
-            AWS::CloudFormation::Init:
-              config:
-                packages:
+    ```yaml
+      WebServerInstance:
+        Type: AWS::EC2::Instance
+        Metadata:
+          AWS::CloudFormation::Init:
+            config:
+              packages:
+                {...}
+              files:
+                /var/www/html/index.php:
                   {...}
-                files:
-                  /var/www/html/index.php:
+                /etc/cfn/cfn-hup.conf:
                     {...}
-                  /etc/cfn/cfn-hup.conf:
-                     {...}
-                  /etc/cfn/hooks.d/cfn-auto-reloader.conf:
-                     {...}
-                services:
-                  sysvinit:
-                    httpd:
-                      enabled: true
-                      ensureRunning: true
-                    cfn-hup:
-                      enabled: true
-                      ensureRunning: true
-                      files:
-                        - /etc/cfn/cfn-hup.conf
-                        - /etc/cfn/hooks.d/cfn-auto-reloader.conf
+                /etc/cfn/hooks.d/cfn-auto-reloader.conf:
+                    {...}
+              services:
+                sysvinit:
+                  httpd:
+                    enabled: true
+                    ensureRunning: true
+                  cfn-hup:
+                    enabled: true
+                    ensureRunning: true
+                    files:
+                      - /etc/cfn/cfn-hup.conf
+                      - /etc/cfn/hooks.d/cfn-auto-reloader.conf
+    ```
 
 #### 4. Configure cfn-signal and CreationPolicy attribute
 Finally, you need a way to instruct AWS CloudFormation to complete stack creation only after all the services (such as Apache and cfn-hup) are running and not after all the stack resources are created. 
@@ -223,26 +267,30 @@ To prevent this you can add a [CreationPolicy](https://docs.aws.amazon.com/AWSCl
 
 1. Add Creation policy to `WebServerInstance` resource property.
 
+    ```yaml
         CreationPolicy:
           ResourceSignal:
             Count: 1
             Timeout: PT10M
+    ```
 
 1. Add the `cfn-signal` to the UserData parameter.
 
-       UserData:
-         Fn::Base64:
-           !Sub |
-             #!/bin/bash -xe
-             # Update aws-cfn-bootstrap to the latest
-             yum install -y aws-cfn-bootstrap
-             # Call cfn-init script to install files and packages
-             /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource WebServerInstance --region ${AWS::Region}
-             # Call cfn-signal script to send a signal with exit code 
-             /opt/aws/bin/cfn-signal --exit-code $? --stack ${AWS::StackName} --resource WebServerInstance --region ${AWS::Region}
+    ```yaml
+          UserData:
+            Fn::Base64:
+              !Sub |
+                #!/bin/bash -xe
+                # Update aws-cfn-bootstrap to the latest
+                yum install -y aws-cfn-bootstrap
+                # Call cfn-init script to install files and packages
+                /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource WebServerInstance --region ${AWS::Region}
+                # Call cfn-signal script to send a signal with exit code 
+                /opt/aws/bin/cfn-signal --exit-code $? --stack ${AWS::StackName} --resource WebServerInstance --region ${AWS::Region}
+    ```
 
 #### 5. Update the stack
-To update the stack and apply the changes you have made in the `UserData` property, the EC2 instance needs to be replaced. You can find the properties which will replace an EC2 instances [here](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html?shortFooter=true#aws-properties-ec2-instance-properties).
+To update the stack and apply the changes you have made in the `UserData` property, the EC2 instance needs to be replaced. You can find the properties which will replace EC2 instances [here](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html?shortFooter=true#aws-properties-ec2-instance-properties).
 
 In the example below, you will use `AvailabilityZone` property and parameter to trigger the replacement.
 
@@ -262,10 +310,9 @@ In the example below, you will use `AvailabilityZone` property and parameter to 
               AvailabilityZone: !Ref AvailabilityZone
 
 1. Check the availability zone of the deployed Web Server instance.
- 
+
     + Go to the **[Instances](https://console.aws.amazon.com/ec2#instances)** in the EC2 console
     + Select the `<enviroment-webserver` instance and make a note of the **Availability zone** value. For example `eu-west-2a`.
-
 
 1. Open the **[AWS CloudFormation](https://console.aws.amazon.com/cloudformation)** link in a new tab and log in to your AWS account.
 1. Click on the stack name, for example **cfn-workshop-ec2**.
@@ -275,19 +322,19 @@ In the example below, you will use `AvailabilityZone` property and parameter to 
 1. Click on **Choose file** button and navigate to your workshop directory.
 1. Select the file `07-lab09-HelperScripts.yaml` and click **Next**.
 1. For **Amazon Machine Image ID** leave the default value in.
-1. For **AvailabilityZone** parameter, select the different availability zone than the one you made a note in a step 3, for example **eu-west-2b**.
+1. For **AvailabilityZone** parameter, select the different availability zone than the one you made a note of in step 3, for example, **eu-west-2b**.
         ![az-update](../az-update-1.png)
 1. For **EnvironmentType** leave the selected environment in.
 1. You can leave **Configure stack options** default, click **Next**.
-1. On the **Review <stack_name>** page, scroll down to the bottom and tick **I acknowledge that AWS CloudFormation might create IAM resources** check box, then click on **Update stack**.
-    
+1. On the **Review <stack_name>** page, scroll down to the bottom and tick **I acknowledge that AWS CloudFormation might create IAM resources** checkbox, then click on **Update stack**.
+
     {{% notice note %}}
 Notice that in **Change set preview**, the _Replacement_ condition of EC2 resource is **True**. Hence the current EC2 instance will be terminated and replaced with a new one.
     {{% /notice %}}
-    
+
 1. You can click the **refresh** button a few times until you see in the status **UPDATE_COMPLETE**.
 
-In a web browser, enter the `WebsiteURL` (you can get the WebsiteURL from the _Outputs_ tab of the CloudFormation console).
+In a web browser, enter the `Website URL` (you can get the Website URL from the _Outputs_ tab of the CloudFormation console).
 
 #### Challenge
 
@@ -300,17 +347,20 @@ Locate the `/var/www/html/index.php` in the _files_ section of the EC2 metadata
 
 Add the code below to the `<\?php {...} ?>` block:
 
-    # Get the instance AMI ID and store it in the $ami_id variable
-    $url = "http://169.254.169.254/latest/meta-data/ami-id";
-    $ami_id = file_get_contents($url);
-                    
+```yaml
+                    # Get the instance AMI ID and store it in the $ami_id variable
+                    $url = "http://169.254.169.254/latest/meta-data/ami-id";
+                    $ami_id = file_get_contents($url);
+```
 Add the code below to html `<h2>` tags:
 
-    <h2>AMI ID: <?php echo $ami_id ?></h2>
+```yaml
+                    <h2>AMI ID: <?php echo $ami_id ?></h2>
+```
 
 ##### 2. Update the stack with a new template:
 
-`cfn-hup` will detect changes in metadata section, and will automatically deploy the new version. 
+`cfn-hup` will detect changes in the metadata section, and will automatically deploy the new version. 
 
 1. Open the **[AWS CloudFormation](https://console.aws.amazon.com/cloudformation)** link in a new tab and log in to your AWS account.
 1. Click on the stack name, for example **cfn-workshop-ec2**.
@@ -323,12 +373,17 @@ Add the code below to html `<h2>` tags:
 1. For **AvailabilityZone** parameter, leave the selected AZ in.
 1. For **EnvironmentType** leave the selected environment in.
 1. You can leave **Configure stack options** default, click **Next**.
-1. On the **Review <stack_name>** page, scroll down to the bottom and tick **I acknowledge that AWS CloudFormation might create IAM resources** check box, then click on **Update stack**.
+1. On the **Review <stack_name>** page, scroll down to the bottom and tick **I acknowledge that AWS CloudFormation might create IAM resources** checkbox, then click on **Update stack**.
+    
+    {{% notice note %}}
+Notice that in **Change set preview**, the _Replacement_ condition of EC2 resource is **False**. Hence the current EC2 instance will not be terminated it will be cfn-hup that triggers and updates the instance in place.
+    {{% /notice %}}
+    
 1. You can click the **refresh** button a few times until you see in the status **UPDATE_COMPLETE**.
 
-##### 3. Verify that changes has been deployed successfully
+##### 3. Verify that the changes have been deployed successfully
 
-Open a new browser window in private mode and enter the `WebsiteURL` (you can get the WebsiteURL from the _Outputs_ tab of the CloudFormation console).
+Open a new browser window in private mode and enter the `Website URL` (you can get the Website URL from the _Outputs_ tab of the CloudFormation console).
 You should see the AMI ID added to the page, similar to the picture below.
 
 ![ami-id](../ami-id-1.png)
@@ -337,10 +392,14 @@ You should see the AMI ID added to the page, similar to the picture below.
 
 Follow these steps to clean up created resources:
 
-1. In in the **[CloudFormation console](https://console.aws.amazon.com/cloudformation)**, select the the stack you have created in this lab. For example `cfn-workshop-ec2`.
+1. In in the **[CloudFormation console](https://console.aws.amazon.com/cloudformation)**, select the stack you have created in this lab. For example `cfn-workshop-ec2`.
 1. In the top right corner, click on **Delete**.
-1. In the pop up window click on **Delete stack**.
+1. In the pop-up window click on **Delete stack**.
 1. You can click the **refresh** button a few times until you see in the status **DELETE_COMPLETE**.
+
+{{% notice warning %}}
+Please ensure you check that you also delete the stack you created in the second Region if you carried out the challenge in Lab 06
+{{% /notice %}}
 
 ---
 

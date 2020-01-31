@@ -13,16 +13,14 @@ Session Manager has several benefits over using SSH:
 + No need to manage SSH keys.
 + No need to open up any inbound ports in Security Groups.
 + You can use IAM policies and users to control access to your instances.
-+ Commands and responses can be logged to Amazon CloudWatch and to an S3 bucket.
++ Commands and responses can be logged to Amazon CloudWatch and also to an S3 bucket.
 
 #### How Session Manager works
 
-1. The administrator authenticates against IAM.
+1. The user authenticates against IAM.
 1. IAM authorizes to start a session on an EC2 instance by evaluating applicable IAM policies.
-1. The administrator uses the AWS Management Console or the terminal (AWS CLI and additional plugin required) to 
-   start a session via Systems Manager.
-1. The Systems Manager agent running on the EC2 instance connects to the AWS Systems Manager service
-   and executes the commands on the instance.
+1. The user uses the AWS Management Console or the terminal (AWS CLI and additional plugin required) to start a session via Systems Manager.
+1. The Systems Manager agent running on the EC2 instance connects to the AWS Systems Manager service and executes the commands on the instance.
 1. The Session Manager sends audit logs to CloudWatch Logs or S3.
 
 {{% notice note %}}
@@ -50,49 +48,51 @@ You can proceed to the next step as SSM Agent is pre-installed on Amazon Linux A
 
 #### 2. Create an IAM role for the EC2 instance
 The AWS managed policy, `AmazonSSMManagedInstanceCore`, allows an instance to use AWS Systems Manager service core functionality. This will allow you to connect to the EC2 instance using Systems Manager Session Manager.
-  
-    SSMIAMRole:
-      Type: AWS::IAM::Role
-      Properties:
-        AssumeRolePolicyDocument:
-          Statement:
-            - Effect: Allow
-              Principal:
-                Service:
-                  - ec2.amazonaws.com
-              Action:
-                - sts:AssumeRole
-        ManagedPolicyArns:
-          - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+```yaml
+  SSMIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+```
 
 #### 3. Create an IAM Instance Profile
 
 Create Instance profile resource.
-  
-    WebServerInstanceProfile:
-      Type: AWS::IAM::InstanceProfile
-      Properties:
-        Path: /
-        Roles:
-          - !Ref SSMIAMRole
+
+```yaml
+  WebServerInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+        - !Ref SSMIAMRole
+```
 
 #### 4. Attach the IAM Instance Profile to an Amazon EC2 Instance
 
 Attach the role to the instance with `IamInstanceProfile` property.
 
-    WebServerInstance:
-      Type: AWS::EC2::Instance
-      Properties:
-        IamInstanceProfile: !Ref WebServerInstanceProfile
-        ImageId: !Ref AmiID
-        InstanceType: !FindInMap [EnvironmentToInstanceType, !Ref EnvironmentType, InstanceType]
-        Tags:
-          - Key: Name
-            Value: !Join [ '-', [ !Ref EnvironmentType, Web Server ] ]
-
-{{% notice note %}}
-You can attach the instance profile to the new Amazon EC2 instances at launch time, or to existing Amazon EC2 instances.
-{{% /notice %}}
+```yaml
+  WebServerInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      IamInstanceProfile: !Ref WebServerInstanceProfile
+      ImageId: !Ref AmiID
+      InstanceType: !FindInMap [EnvironmentToInstanceType, !Ref EnvironmentType, InstanceType]
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentType}-webserver
+```
 
 #### 5. Update the Stack
   
@@ -106,16 +106,16 @@ Go to the AWS console and update your stack with a new template.
 1. Click on **Choose file** button and navigate to your workshop directory.
 1. Select the file `04-lab07-SSM-SM.yaml` and click **Next**.
 1. For **Amazon Machine Image ID** leave the default value in.
-1. For **EnvironmentType** select the different environment than is listed. For example if you have **Dev** selected, choose **Test** and click **Next**.    
+1. For **EnvironmentType** select the different environment than is listed. For example, if you have **Dev** selected, choose **Test** and click **Next**.
 {{%notice note %}}
-For System Manager to work, the instance need to meet following conditions:     
+For Systems Manager to work, the instance needs to meet the following conditions:
   \- **Access to the internet or a VPC Endpoint.** \
-  \- **Role attached with correct permission.** \
-By changing the environment, instance will be stopped and started again. This will help to start `ssm-agent` which may have timed-out as the role wasn't attached in previous lab.
+  \- **Role attached with the correct permissions.** \
+By changing the environment, the instance will be stopped and started again. This will help to start `ssm-agent` which may have timed-out as the role wasn't attached in the previous lab.
 {{% /notice %}}
-    
+
 1. You can leave **Configure stack options** default, click **Next**.
-1. On the **Review <stack_name>** page, scroll down to the bottom and tick **I acknowledge that AWS CloudFormation might create IAM resources** check box, then click on **Update stack**.
+1. On the **Review <stack_name>** page, scroll down to the bottom and tick **I acknowledge that AWS CloudFormation might create IAM resources** checkbox, then click on **Update stack**.
 1. You can click the **refresh** button a few times until you see in the status **UPDATE_COMPLETE**.
   
 ### Challenge
@@ -129,13 +129,15 @@ Review the AWS documentation for [Instance Metadata and User Data](https://docs.
 {{%expand "Want to see the solution?" %}}
 Pate the following command inside the instance terminal:
 
-    curl http://169.254.169.254/latest/meta-data/ami-id
+```bash
+curl http://169.254.169.254/latest/meta-data/ami-id
+```
 
 ![ssm-sm](../ssm-sm-1.gif)
 {{% /expand %}}
 
 {{% notice warning %}}
-Outside of this workshop you should take additional steps to configure and secure access to SSM Session Manager. See recommendations and documentation link below for further details.
+Outside of this workshop, you should take additional steps to configure and secure access to SSM Session Manager. See recommendations and documentation link below for further details.
 {{% /notice %}}
 
 ##### Recommendations:

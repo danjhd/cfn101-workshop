@@ -45,4 +45,6 @@ Resources:
       InstanceType: !Ref InstanceType
       Tags:
         - Key: Name
-          Value: !Join [ '-', [ !Ref InstanceType, webserver ] ] # replace the 'InstanceType' with 'EnvironmentType'
+          Value: !Join [ '-', [ !Ref InstanceType, webserver ] ]
+        - Key: Name2
+          Value: !Sub ${InstanceType}-webserver

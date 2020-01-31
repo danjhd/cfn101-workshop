@@ -24,5 +24,3 @@ In this section, you will be introduced to the basic concepts of AWS CloudFormat
   AWS resources needed to run your applications.
 
 ---
-
-{{% children showhidden="false" %}}

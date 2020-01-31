@@ -6,7 +6,7 @@ weight: 100
 
 ## Create an AWS Account for Experimentation
 
-To deploy our app, you'll need access to an AWS account. If you already have an account and your system is configured with credentials of an administrator user, you can [move to the next step](../200-awscli).
+To run this workshop, you'll need access to an AWS account. If you already have an account and your system is already configured with a set of credentials for an administrator user, you can [move to the next step](../200-awscli).
 
 {{% notice warning %}}
 If you are using an existing account, either personal or a company account, make sure you understand the implications and policy of provisioning resources into this account.
@@ -15,6 +15,10 @@ If you are using an existing account, either personal or a company account, make
 If you don't have an AWS account, you can [create a free account here](https://portal.aws.amazon.com/billing/signup).
 
 ## Administrator User
+
+{{% notice warning %}}
+In this workshop, we will use credentials that have full administrator access to AWS. Having an IAM User configured in this way goes against AWS best practices for [Least Privilege](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege), so please ensure you delete this IAM user at the end of this workshop to reduce the risk as much as possible.
+{{% /notice %}}
 
 1. Sign in to your AWS account
 1. Go to the AWS IAM console and [create a new user](https://console.aws.amazon.com/iam/home?#/users$new).

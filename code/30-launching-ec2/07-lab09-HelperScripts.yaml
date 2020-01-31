@@ -92,7 +92,7 @@ Resources:
         - !Ref WebServerSecurityGroup
       Tags:
         - Key: Name
-          Value: !Join [ '-', [ !Ref EnvironmentType, webserver ] ]
+          Value: !Sub ${EnvironmentType}-webserver
       UserData:
         # 5. Add the code from '4. Call cfn-init script' here
 

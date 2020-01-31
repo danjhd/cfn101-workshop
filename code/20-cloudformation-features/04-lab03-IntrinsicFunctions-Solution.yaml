@@ -36,5 +36,5 @@ Resources:
       Tags:
         - Key: Name
           Value: !Join [ '-', [ !Ref InstanceType, webserver ] ]
-        - Key: InstanceType
-          Value: !Sub ${InstanceType}
+        - Key: Name2
+          Value: !Sub ${InstanceType}-webserver

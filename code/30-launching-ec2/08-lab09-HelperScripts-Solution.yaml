@@ -145,17 +145,17 @@ Resources:
         - !Ref WebServerSecurityGroup
       Tags:
         - Key: Name
-          Value: !Join [ '-', [ !Ref EnvironmentType, webserver ] ]
+          Value: !Sub ${EnvironmentType}-webserver
       UserData:
         Fn::Base64:
           !Sub |
-          #!/bin/bash -xe
-          # Update aws-cfn-bootstrap to the latest
-          yum install -y aws-cfn-bootstrap
-          # Call cfn-init script to install files and packages
-          /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource WebServerInstance --region ${AWS::Region}
-          # Call cfn-signal script to send a signal with exit code
-          /opt/aws/bin/cfn-signal --exit-code $? --stack ${AWS::StackName} --resource WebServerInstance --region ${AWS::Region}
+            #!/bin/bash -xe
+            # Update aws-cfn-bootstrap to the latest
+            yum install -y aws-cfn-bootstrap
+            # Call cfn-init script to install files and packages
+            /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource WebServerInstance --region ${AWS::Region}
+            # Call cfn-signal script to send a signal with exit code
+            /opt/aws/bin/cfn-signal --exit-code $? --stack ${AWS::StackName} --resource WebServerInstance --region ${AWS::Region}
 
     CreationPolicy:
       ResourceSignal:

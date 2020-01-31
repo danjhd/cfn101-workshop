@@ -14,11 +14,11 @@ weight: 100
 
 #### CFN 101 - Part 01
 
-+ First part will take somewhere between 2 to 3 hours.
++ The first part will take somewhere between 2 to 3 hours.
 
 #### CFN 201 - Part 02
 
-+ Second part will take approximately 3 hours.
++ The second part will take approximately 3 hours.
 
 ## Cost
 
@@ -29,5 +29,5 @@ You are responsible for the cost of the AWS services used while running this wor
 {{% /notice %}}
 
 {{% notice tip %}}
-You can enable the [AWS Cost and Usage Report](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/billing-reports-gettingstarted-turnonreports.html) to track costs associated with the workshop. This report delivers billing metrics to an S3 bucket in your account. It provides cost estimates based on usage throughout each month, and finalizes the data at the end of the month. For more information about the report, see the [AWS documentation](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/billing-reports-costusage.html).
-
+You can enable the [AWS Cost and Usage Report](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/billing-reports-gettingstarted-turnonreports.html) to track costs associated with the workshop. This report delivers billing metrics to an S3 bucket in your account. It provides cost estimates based on usage throughout each month and finalizes the data at the end of the month. For more information about the report, see the [AWS documentation](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/billing-reports-costusage.html).
+{{% /notice %}}

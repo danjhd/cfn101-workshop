@@ -70,7 +70,7 @@ Resources:
       # Associate the security group with EC2 instance with 'SecurityGroupIds' property.
       Tags:
         - Key: Name
-          Value: !Join [ '-', [ !Ref EnvironmentType, webserver ] ]
+          Value: !Sub ${EnvironmentType}-webserver
       # Add the code from '2. Install Apache web server on the instance' step here.
 
   # Add the code from '1. Create Security Group' step here.

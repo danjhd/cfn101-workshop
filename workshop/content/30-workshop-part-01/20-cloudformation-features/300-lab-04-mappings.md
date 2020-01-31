@@ -6,36 +6,37 @@ weight: 300
 
 ### Overview
 
-This lab will introduce **[Mappings](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/mappings-section-structure.html)**. A _Mappings_ section is a top level section of a CloudFormation template. It is used to define maps, their keys and values which can be then referenced in your template.
+This lab will introduce **[Mappings](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/mappings-section-structure.html)**. A _Mappings_ section is a top-level section of a CloudFormation template. It is used to define maps, their keys and values which can be then referenced in your template.
 
 ![A diagram of the structure of a mappings section](../mapping.png)
 
 Here is a simplified example of a Mappings section. It contains one Map, `AnExampleMapping`. \
-`AnExampleMapping` contains three top level keys, `Key01`, `Key02` and `Key03`. \
-Each top level key contains one or more `Key: Value` pairs.
+`AnExampleMapping` contains three top-level keys, `Key01`, `Key02` and `Key03`. \
+Each top-level key contains one or more `Key: Value` pairs.
 
-    Mappings: 
-      AnExampleMap: 
-        TopLevelKey01: 
-          Key01: Value01
-          Key02: Value02
-    
-        TopLevelKey02: 
-          AnotherKey: AnExampleValue
-    
-        TopLevelKey03: 
-          AFinalKey: ADifferentValue
+```yaml
+Mappings: 
+  AnExampleMap: 
+    TopLevelKey01: 
+      Key01: Value01
+      Key02: Value02
 
+    TopLevelKey02: 
+      AnotherKey: AnExampleValue
+
+    TopLevelKey03: 
+      AFinalKey: ADifferentValue
+```
 
 ### Topics Covered
 In this Lab, you will:
 
 + Create a mapping for environment type such as _Test_ or _Prod_. Each environment type will be mapped to different instance type.
-+ Find the required value in mappings and reference it in properties section of the EC2 resource.
++ Find the required value in mappings and reference it in the properties section of the EC2 resource.
 
 ### Start Lab
 
-You will now add a `Mappings` section to your own template. 
+You will now add a `Mappings` section to your template. 
 
 {{% notice info %}}
 The templates for this lab can be found in `code/20-cloudformation-features`\
@@ -49,15 +50,17 @@ This section will define two possible environments, `Test` and `Prod`. It will u
  
 In the _Parameters_ section of the template. Replace the `InstanceType` parameter with the code below (you will not need the `InstanceType `parameter anymore. You will use the mapping instead).
 
-    Parameters:
-      EnvironmentType:
-        Description: 'Specify the Environment type of the stack.'
-        Type: String
-        Default: Test
-        AllowedValues:
-          - Test
-          - Prod
-        ConstraintDescription: 'Specify either Test or Prod.'
+```yaml
+Parameters:
+  EnvironmentType:
+    Description: 'Specify the Environment type of the stack.'
+    Type: String
+    Default: Test
+    AllowedValues:
+      - Test
+      - Prod
+    ConstraintDescription: 'Specify either Test or Prod.'
+```
 
 {{% notice note %}}
 Dont forget to remove `InstanceType` from the _ParameterGroups_ and _ParameterLabels_ sections of the template.
@@ -65,37 +68,44 @@ Dont forget to remove `InstanceType` from the _ParameterGroups_ and _ParameterLa
 
 #### 2. Next, create _EnvironmentToInstanceType_ in the mapping section 
 
-The map contains two top level keys, one for each environment. Each top level key contains a single `InstanceType` second level key.
+The map contains two top-level keys, one for each environment. Each top-level key contains a single `InstanceType` second-level key.
 
-    Mappings:
-      EnvironmentToInstanceType: # Map Name
-        Test: # Top level key
-          InstanceType: t2.micro # Second level key
-        Prod:
-          InstanceType: t2.small
+```yaml
+Mappings:
+  EnvironmentToInstanceType: # Map Name
+    Test: # Top level key
+      InstanceType: t2.micro # Second level key
+    Prod:
+      InstanceType: t2.small
+```
 
 #### 3. Next, modify the _InstanceType_ property
 
 Using the intrinsic function `Fn::FindInMap`, CloudFormation will lookup the value in the `EnvironmentToInstanceType` map and will return the value back to `InstanceType` property. 
 
-    Resources:
-      WebServerInstance:
-        Type: AWS::EC2::Instance
-        Properties: 
-          ImageId: !Ref AmiID
-          InstanceType: !FindInMap
-            - EnvironmentToInstanceType # Map Name
-            - !Ref EnvironmentType # Top Level Key
-            - InstanceType # Second Level Key
+```yaml
+Resources:
+  WebServerInstance:
+    Type: AWS::EC2::Instance
+    Properties: 
+      ImageId: !Ref AmiID
+      InstanceType: !FindInMap
+        - EnvironmentToInstanceType # Map Name
+        - !Ref EnvironmentType # Top Level Key
+        - InstanceType # Second Level Key
+```
 
 #### 4. Next, update the _Tags_ property
 
 As you have deleted the `InstanceType` parameter, you will need to update the tag. Reference `EnviromentType` in the tag property.
+We will take this opportunity to remove the duplicate `Name2` tag and switch to using the simpler **Fn::Sub** function in the Name tag.
 
-    Tags:
-      - Key: Name
-        Value: !Join [ '-', [ !Ref EnvironmentType, webserver ] ]
-        
+```yaml
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentType}-webserver
+```
+
 #### 5. Finally, Deploy the solution
 
 Now that you have added a Mappings section to your template, go to the AWS console and update your CloudFormation Stack.
@@ -107,8 +117,8 @@ Now that you have added a Mappings section to your template, go to the AWS conso
 1. In **Template source**, choose **Upload a template file**.
 1. Click on **Choose file** button and navigate to your workshop directory.
 1. Select the file `05-lab04-Mapping.yaml` and click **Next**.
-1. For **Amazon Machine Image ID** leave the default value in.
-1. For **EnvironmentType** select the environment from drop down list, for example **Test** and click **Next**.
+1. For **Amazon Machine Image ID** leave the existing value in.
+1. For **EnvironmentType** select the environment from drop-down list, for example **Test** and click **Next**.
 1. You can leave **Configure stack options** default, click **Next**.
 1. On the **Review <stack_name>** page, scroll down to the bottom and click on **Update stack**.
 1. You can click the **refresh** button a few times until you see in the status **UPDATE_COMPLETE**.
@@ -129,25 +139,27 @@ Don't forget to add `Dev` to the list of allowed values for the `EnvironmentType
 
 {{%expand "Expand to see the solution" %}}
 
-    Parameters:
-      EnvironmentType:
-        Description: 'Specify the Environment type of the stack.'
-        Type: String
-        Default: Test
-        AllowedValues:
-          - Dev
-          - Test
-          - Prod
-        ConstraintDescription: 'Specify either Dev, Test or Prod.'
-    
-    Mappings:
-      EnvironmentToInstanceType: # Map Name
-        Dev:
-          InstanceType: t2.nano
-        Test: # Top level key
-          InstanceType: t2.micro # Second level key
-        Prod:
-          InstanceType: t2.small
+```yaml
+Parameters:
+  EnvironmentType:
+    Description: 'Specify the Environment type of the stack.'
+    Type: String
+    Default: Test
+    AllowedValues:
+      - Dev
+      - Test
+      - Prod
+    ConstraintDescription: 'Specify either Dev, Test or Prod.'
+
+Mappings:
+  EnvironmentToInstanceType: # Map Name
+    Dev:
+      InstanceType: t2.nano
+    Test: # Top level key
+      InstanceType: t2.micro # Second level key
+    Prod:
+      InstanceType: t2.small
+```
 
 See `code/20-cloudformation-features/06-lab04-Mapping-Solution.yaml` for the full solution.
 
