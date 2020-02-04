@@ -15,10 +15,6 @@ Metadata:
         default: 'Amazon Machine Image ID'
 
 Parameters:
-  SubnetId:
-    Type: AWS::EC2::Subnet::Id
-    Description: 'The Subnet ID'
-
   EnvironmentType:
     Description: 'Specify the Environment type of the stack.'
     Type: String
@@ -34,7 +30,7 @@ Parameters:
     Description: 'The ID of the AMI.'
     Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
 
-  # Add VpcId parameter here
+  # Add VpcId and SubnetId parametera here
 
   # Add WebServerInstanceProfile parameter here
 
