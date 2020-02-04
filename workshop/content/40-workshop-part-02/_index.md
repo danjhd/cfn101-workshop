@@ -15,5 +15,4 @@ Welcome to the second part of the workshop. This part introduces more advanced C
 
 + [Creating a Nested Stack](/40-workshop-part-02/10-nested-stack)
 + [Creating a Layered Stack](/40-workshop-part-02/20-layered-stack)
-+ [CloudFormation Package and Deploy](/40-workshop-part-02/30-cloudformation-package-and-deploy)
-  
++ [Package and Deploy](/40-workshop-part-02/30-package-and-deploy)
