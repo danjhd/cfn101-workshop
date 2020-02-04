@@ -29,9 +29,9 @@ The next diagram represents the high-level overview of the infrastructure:
 
 ![nested-stack-architecture](../ns-architecture.png)
 
-You will find the working directory in `code/60-setting-up-nested-stack/01-working directory`. In the rest of this lab, you should add your code to the templates here.
+You will find the working directory in `code/60-nested-stack/01-working directory`. In the rest of this lab, you should add your code to the templates here.
 
-You can find the working solutions in `code/60-setting-up-nested-stack/02-solution`. You can reference this against your code.
+You can find the working solutions in `code/60-nested-stack/02-solution`. You can reference this against your code.
 
 **Let's start..**
 
@@ -72,7 +72,7 @@ The VPC template has been created for you. It is titled `vpc.yaml`. This templat
 #### 1. Create VPC parameters in main template
 
 {{% notice note %}} 
-All of the files referenced in this lab can be found within `code/60-setting-up-nested-stack/01-working directory`
+All of the files referenced in this lab can be found within `code/60-nested-stack/01-working directory`
 {{% /notice %}}
 
 If you look in the file `vpc.yaml` file, you will notice that there are some parameters in the _Parameters_ section of the template.
@@ -135,7 +135,7 @@ Add this code in the _Resources_ section of the main template (`main.yaml`)
 1. Locate the `vpc.yaml` file and select it.
 1. Click _Upload_ button to upload the file.
 
-#### 4. Deploy VPC Nested Stack
+#### 4. Deploy the VPC Nested Stack
 
 1. Navigate to CloudFormation in the console and click _Create stack With new resources (standard)_.
 1. In **Prepare template** select _Template is ready_.
@@ -154,7 +154,7 @@ Add this code in the _Resources_ section of the main template (`main.yaml`)
 
 The IAM instance role resource has been removed from the ec2 template for you.
 
-1. Open `code/60-setting-up-nested-stack/01-working directory/iam.yaml`.
+1. Open `code/60-nested-stack/01-working directory/iam.yaml`.
 1. Copy the code below to the _Resources_ section of the template.
 
 ```yaml

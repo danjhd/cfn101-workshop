@@ -18,7 +18,7 @@ This section will cover three key commands, used to package, validate and deploy
 
 ## Packaging a template
 
-Cloudformation components often reference external files in S3. An example of this the `AWS::CloudFormation::Stack` resource. The Component requires the target template  to be in S3. What if the external files are on your local machine? In the previous section you uploaded these templates manually to S3 before deploying.
+Cloudformation components often reference external files in S3. An example of this the `AWS::CloudFormation::Stack` resource. The Component requires the target template to be in S3. What if the external files are on your local machine? In the previous section, you uploaded these templates manually to S3 before deploying.
 
 [`aws cloudformation package`](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/package.html) is a useful command that solves this problem. When given a template that references local resources, it will upload the resources to a specified S3 bucket. An updated template is output. The local file references in the template are updated to reference the uploaded assets in S3.
 
