@@ -401,6 +401,10 @@ Follow these steps to clean up created resources:
 Please ensure you check that you also delete the stack you created in the second Region if you carried out the challenge in Lab 06
 {{% /notice %}}
 
+{{% notice info %}}
+If you created a Default VPC in the pre-requisites and you no longer want or need it you can delete it now as well.
+{{% /notice %}}
+
 ---
 
 ### Conclusion
