@@ -149,21 +149,11 @@ Resources:
           CidrIp: 0.0.0.0/0
       VpcId: !ImportValue cfn-workshop-VpcId
 
-  WebServerEIP:
-    Type: AWS::EC2::EIP
-    Properties:
-      Domain: vpc
-      InstanceId: !Ref WebServerInstance
-
 Outputs:
   WebServerPublicDNS:
     Description: 'Public DNS of EC2 instance'
     Value: !GetAtt WebServerInstance.PublicDnsName
 
-  WebServerElasticIP:
-    Description: 'Elastic IP assigned to EC2'
-    Value: !Ref WebServerEIP
-
   WebsiteURL:
-    Value: !Sub http://${WebServerEIP}
     Description: Application URL
+    Value: !Sub http://${WebServerInstance.PublicDnsName}

@@ -129,9 +129,9 @@ Resources:
 
     Properties:
       # Change to use 'ImportValue' function here
-      SubnetId: !ImportValue cfn-workshop-PublicSubnet1
+      SubnetId: !Ref PublicSubnet1
       # Change to use 'ImportValue' function here
-      IamInstanceProfile: !ImportValue cfn-workshop-WebServerInstanceProfile
+      IamInstanceProfile: !Ref WebServerInstanceProfile
       ImageId: !Ref AmiID
       InstanceType: !FindInMap [EnvironmentToInstanceType, !Ref EnvironmentType, InstanceType]
       SecurityGroupIds:
@@ -165,23 +165,13 @@ Resources:
           ToPort: 80
           CidrIp: 0.0.0.0/0
       # Change to use 'ImportValue' function here
-      VpcId: !ImportValue cfn-workshop-VpcId
-
-  WebServerEIP:
-    Type: AWS::EC2::EIP
-    Properties:
-      Domain: vpc
-      InstanceId: !Ref WebServerInstance
+      VpcId: !Ref VpcId
 
 Outputs:
   WebServerPublicDNS:
     Description: 'Public DNS of EC2 instance'
     Value: !GetAtt WebServerInstance.PublicDnsName
 
-  WebServerElasticIP:
-    Description: 'Elastic IP assigned to EC2'
-    Value: !Ref WebServerEIP
-
   WebsiteURL:
-    Value: !Sub http://${WebServerEIP}
     Description: Application URL
+    Value: !Sub http://${WebServerInstance.PublicDnsName}

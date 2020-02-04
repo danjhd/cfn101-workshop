@@ -55,14 +55,10 @@ Resources:
       TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/vpc.yaml
       TimeoutInMinutes: 20
       Parameters:
-        AvailabilityZones:
-          Fn::Join:
-            - ','
-            - !Ref AvailabilityZones
+        AvailabilityZones: !Join [',', !Ref AvailabilityZones]
         VPCCidr: !Ref VPCCidr
         VPCName: !Ref VPCName
-        PublicSubnet1Cidr: !Ref PublicSubnet1Cidr
-        PublicSubnet2Cidr: !Ref PublicSubnet2Cidr
+        PublicSubnetCidrs: !Join [',', [!Ref PublicSubnet1Cidr, !Ref PublicSubnet2Cidr]]
 
   IamStack:
     Type: AWS::CloudFormation::Stack
