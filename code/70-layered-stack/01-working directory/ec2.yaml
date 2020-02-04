@@ -15,11 +15,6 @@ Metadata:
         default: 'Amazon Machine Image ID'
 
 Parameters:
-  # Remove the subnet parameter
-  SubnetId:
-    Type: AWS::EC2::Subnet::Id
-    Description: 'The Subnet ID'
-
   EnvironmentType:
     Description: 'Specify the Environment type of the stack.'
     Type: String
@@ -39,6 +34,11 @@ Parameters:
   VpcId:
     Type: AWS::EC2::VPC::Id
     Description: 'The VPC ID'
+
+  # Remove the subnet parameter
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: 'The Subnet ID'
 
   # Remove the profile parameter
   WebServerInstanceProfile:
@@ -129,9 +129,9 @@ Resources:
 
     Properties:
       # Change to use 'ImportValue' function here
-      SubnetId: !Ref SubnetId
+      SubnetId: !ImportValue cfn-workshop-PublicSubnet1
       # Change to use 'ImportValue' function here
-      IamInstanceProfile: !Ref WebServerInstanceProfile
+      IamInstanceProfile: !ImportValue cfn-workshop-WebServerInstanceProfile
       ImageId: !Ref AmiID
       InstanceType: !FindInMap [EnvironmentToInstanceType, !Ref EnvironmentType, InstanceType]
       SecurityGroupIds:
@@ -165,8 +165,7 @@ Resources:
           ToPort: 80
           CidrIp: 0.0.0.0/0
       # Change to use 'ImportValue' function here
-      VpcId: !Ref VpcId
-
+      VpcId: !ImportValue cfn-workshop-VpcId
 
   WebServerEIP:
     Type: AWS::EC2::EIP
