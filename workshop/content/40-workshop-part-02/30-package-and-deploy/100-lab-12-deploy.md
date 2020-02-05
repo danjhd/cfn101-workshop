@@ -23,8 +23,12 @@ When you package a template, you are required to specify an S3 Bucket to package
 Let's try it out. Here is an example of using the [`aws cloudformation package`](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/package.html) command. Make sure you insert the name of your S3 bucket in place of `{{example-bucket-name}}`
 
 ```bash
-aws cloudformation package --template-file code/80-package-and-deploy/01-lab12-deploy.yaml --s3-bucket {{example-bucket-name}} --output-template-file code/80-package-and-deploy/01-lab12-deploy-packaged.yaml
+aws cloudformation package --template-file code/80-package-and-deploy/01-lab12-deploy.yaml --s3-bucket {{example-bucket-name}} --output-template-file code/80-package-and-deploy/01-lab12-deploy-packaged.yaml --region eu-west-2
 ```
+
+{{% notice warning %}}
+Make sure to change the `--region` flag to the region you are using.
+{{% /notice %}}
 
 By default, the updated template is written to the standard output. Use the option `--output-template-file` to specify a path to write the updated CloudFormation template.
 
