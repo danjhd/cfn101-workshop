@@ -20,13 +20,15 @@ Cloudformation components often reference external files in S3. An example of th
 
 When you package a template, you are required to specify an S3 Bucket to package the contents to.
 
-Let's try it out. Here is an example of using the [`aws cloudformation package`](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/package.html) command
+Let's try it out. Here is an example of using the [`aws cloudformation package`](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/package.html) command. Make sure you insert the name of your S3 bucket in place of `{{example-bucket-name}}`
 
 ```bash
-aws cloudformation package --template-file code/80-package-and-deploy/01-lab12-deploy.yaml --s3-bucket example-bucket-name --output-template-file code/80-package-and-deploy/01-lab12-deploy-packaged.yaml
+aws cloudformation package --template-file code/80-package-and-deploy/01-lab12-deploy.yaml --s3-bucket {{example-bucket-name}} --output-template-file code/80-package-and-deploy/01-lab12-deploy-packaged.yaml
 ```
 
 By default, the updated template is written to the standard output. Use the option `--output-template-file` to specify a path to write the updated CloudFormation template.
+
+Take a look in the S3 bucket. You will find 3 new files. These are the Nested stack templates just like we manually uploaded in [Lab 10](../../10-nested-stack/100-lab-10-nested-stacks) but in this case, the upload was handled completely for you.
 
 Using `aws cloudformation package` you can easily prepare your nested stack for deployment.
 
@@ -45,6 +47,8 @@ Notice what happens!
 
 Try to fix the errors, then validate the template again.
 
+If you want to see the fixed version you can find it here `code/80-package-and-deploy/02-lab12-bad-template-solution.yaml`
+
 ## Deploying a template using the CLI
 
 The [`aws cloudformation deploy`](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/deploy/index.html) command is used to deploy CloudFormation templates using the CLI.
@@ -55,8 +59,12 @@ You can use the `--parameter-overrides` option to specify parameters in the temp
 Let's deploy a CloudFormation template using the CLI.
 
 ```bash
-aws cloudformation deploy --template-file code/80-package-and-deploy/01-lab12-deploy-packaged.yaml --stack-name cfn101-lab11-deploy --parameter-overrides "EnvType=Prod" --capabilities CAPABILITY_IAM
+aws cloudformation deploy --template-file code/80-package-and-deploy/01-lab12-deploy-packaged.yaml --stack-name cfn-workshop-deploy --parameter-overrides "EnvType=Prod" --capabilities CAPABILITY_IAM --region eu-west-2
 ```
+
+{{% notice warning %}}
+Make sure to change the `--region` flag to the region you are using.
+{{% /notice %}}
 
 ### Capabilities
 
