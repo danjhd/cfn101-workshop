@@ -13,6 +13,6 @@ Welcome to the second part of the workshop. This part introduces more advanced C
 
 ## Workshop topics covered:
 
-+ [Creating a Nested Stack](/40-workshop-part-02/10-nested-stack)
-+ [Creating a Layered Stack](/40-workshop-part-02/20-layered-stack)
-+ [Package and Deploy](/40-workshop-part-02/30-package-and-deploy)
++ [Creating a Nested Stack](/40-workshop-part-02/40-nested-stack)
++ [Creating a Layered Stack](/40-workshop-part-02/50-layered-stack)
++ [Package and Deploy](/40-workshop-part-02/60-package-and-deploy)

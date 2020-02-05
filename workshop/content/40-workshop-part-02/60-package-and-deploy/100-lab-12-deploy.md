@@ -14,7 +14,7 @@ This section will cover three key commands, used to package, validate and deploy
 
 ## Packaging a template
 
-Cloudformation components often reference external files in S3. An example of this the `AWS::CloudFormation::Stack` resource. The Component requires the target template to be in S3. What if the external files are on your local machine? In [Lab 10](../../10-nested-stack/100-lab-10-nested-stacks), you uploaded these templates manually to S3 before deploying.
+Cloudformation components often reference external files in S3. An example of this the `AWS::CloudFormation::Stack` resource. The Component requires the target template to be in S3. What if the external files are on your local machine? In [Lab 10](../../40-nested-stack/100-lab-10-nested-stacks), you uploaded these templates manually to S3 before deploying.
 
 [`aws cloudformation package`](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/package.html) is a useful command that solves this problem. When given a template that references local resources, it will upload the resources to a specified S3 bucket. An updated template is output. The local file references in the template are updated to reference the uploaded assets in S3.
 
@@ -32,7 +32,7 @@ Make sure to change the `--region` flag to the region you are using.
 
 By default, the updated template is written to the standard output. Use the option `--output-template-file` to specify a path to write the updated CloudFormation template.
 
-Take a look in the S3 bucket. You will find 3 new files. These are the Nested stack templates just like we manually uploaded in [Lab 10](../../10-nested-stack/100-lab-10-nested-stacks) but in this case, the upload was handled completely for you.
+Take a look in the S3 bucket. You will find 3 new files. These are the Nested stack templates just like we manually uploaded in [Lab 10](../../40-nested-stack/100-lab-10-nested-stacks) but in this case, the upload was handled completely for you.
 
 Using `aws cloudformation package` you can easily prepare your nested stack for deployment.
 
