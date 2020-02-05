@@ -29,23 +29,22 @@ This diagram represents the high-level overview of the infrastructure that will 
 
 ![layered-stack-architecture](../ls-architecture.png)
 
-You will find the working directory in `code/70-layered-stack/01-working directory`. In the rest of this lab, you should add your code to the templates here.
-
-You can find the working solutions in `code/70-layered-stack/02-solution`. You can reference this against your code.
+You will find the working files in `code/50-layered-stack`. In the rest of this lab, you should add your code to the templates here.
+The solution can be found in the same folder with a `-Solution` suffix to the matching file name. You can reference these against your code.
 
 **Let's start..**
 
 ### Create VPC Stack
 
-The VPC template has been created for you. It is titled `vpc.yaml`. This template will create VPC stack with 2 Public Subnets, an Internet Gateway, and Route tables.
+The VPC template has been created for you. It is titled `01-lab11-vpc.yaml`. This template will create VPC stack with 2 Public Subnets, an Internet Gateway, and Route tables.
 
 #### 1. Prepare the VPC template
 
 {{% notice note %}} 
-All of the files referenced in this lab can be found within `code/70-layered-stack/01-working directory`
+All of the files referenced in this lab can be found within `code/50-layered-stack`
 {{% /notice %}}
 
-If you look in the file `vpc.yaml` file, you will notice that there are some outputs in the _Outputs_ section of the template.
+If you look in the file `01-lab11-vpc.yaml` file, you will notice that there are some outputs in the _Outputs_ section of the template.
 You will now add exports to each of these so that we can consume them from other CloudFormation stacks.
 
 Add the highlighted lines shown below to your template file.
@@ -72,7 +71,7 @@ Outputs:
 1. Navigate to CloudFormation in the console and click _Create stack With new resources (standard)_.
 1. In **Prepare template** select _Template is ready_.
 1. In **Template source** select _Upload a template file_.
-1. Choose a file `vpc.yaml`.
+1. Choose a file `01-lab11-vpc.yaml`.
 1. Enter a stack name. For example, cfn-workshop-vpc
 1. For the `AvailabilityZones` parameter, select 2 AZs.
 1. You can leave the rest of the parameters default.
@@ -83,7 +82,7 @@ Outputs:
 
 #### 1. Prepare the IAM role template
 
-1. Open `code/70-layered-stack/01-working directory/iam.yaml`.
+1. Open `code/50-layered-stack/02-lab11-iam.yaml`.
 1. Copy the code below to the _Outputs_ section of the template.
 
 ```yaml {hl_lines=[4,5]}
@@ -99,7 +98,7 @@ Outputs:
 1. Navigate to CloudFormation in the console and click _Create stack With new resources (standard)_.
 1. In **Prepare template** select _Template is ready_.
 1. In **Template source** select _Upload a template file_.
-1. Choose a file `iam.yaml`.
+1. Choose a file `02-lab11-iam.yaml`.
 1. Enter a stack name. For example, cfn-workshop-iam
 1. You can leave the rest of the parameters default.
 1. Navigate through the wizard leaving everything default.
@@ -110,7 +109,7 @@ Outputs:
 #### 1. Prepare the EC2 template
 
 The concept of the Layered Stack is to use intrinsic functions to import previously exported values instead of using `Parameters`.
-Therefore, the first change to make to the `ec2.yaml` is to remove the parameters that will no longer be used; `SubnetId`, `VpcId`, and `WebServerInstanceProfile`.
+Therefore, the first change to make to the `03-lab11-ec2.yaml` is to remove the parameters that will no longer be used; `SubnetId`, `VpcId`, and `WebServerInstanceProfile`.
 
 Update the _Parameters_ section to look as follows::
 ```yaml
@@ -134,7 +133,7 @@ Parameters:
 Next, we need to update the `Fn::Ref` in the template to import the exported values from the vpc and iam stacks created earlier.
 We perform this import by using the [Fn::ImportValue](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-importvalue.html) intrinsic function.
 
-Update `WebServerInstance` resource in the _Resources_ section of the `ec2.yaml` template.
+Update `WebServerInstance` resource in the _Resources_ section of the `03-lab11-ec2.yaml` template.
 ```yaml {hl_lines=[5,6]}
   WebServerInstance:
     Type: AWS::EC2::Instance
@@ -148,7 +147,7 @@ Update `WebServerInstance` resource in the _Resources_ section of the `ec2.yaml`
 ```
 
 Finally, update the security group resource in a similar way.
-Update `WebServerSecurityGroup` resource in the _Resources_ section of the `ec2.yaml` template.
+Update `WebServerSecurityGroup` resource in the _Resources_ section of the `03-lab11-ec2.yaml` template.
 ```yaml {hl_lines=[10]}
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -167,7 +166,7 @@ Update `WebServerSecurityGroup` resource in the _Resources_ section of the `ec2.
 1. Navigate to CloudFormation in the console and click _Create stack With new resources (standard)_.
 1. In **Prepare template** select _Template is ready_.
 1. In **Template source** select _Upload a template file_.
-1. Choose a file `ec2.yaml`.
+1. Choose a file `03-lab11-ec2.yaml`.
 1. Enter a stack name. For example, cfn-workshop-ec2
 1. You can leave the rest of the parameters default.
 1. Navigate through the wizard leaving everything default.

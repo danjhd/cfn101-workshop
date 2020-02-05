@@ -23,7 +23,7 @@ When you package a template, you are required to specify an S3 Bucket to package
 Let's try it out. Here is an example of using the [`aws cloudformation package`](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/package.html) command. Make sure you insert the name of your S3 bucket in place of `{{example-bucket-name}}`
 
 ```bash
-aws cloudformation package --template-file code/80-package-and-deploy/01-lab12-deploy.yaml --s3-bucket {{example-bucket-name}} --output-template-file code/80-package-and-deploy/01-lab12-deploy-packaged.yaml --region eu-west-2
+aws cloudformation package --template-file code/60-package-and-deploy/01-lab12-deploy.yaml --s3-bucket {{example-bucket-name}} --output-template-file code/60-package-and-deploy/01-lab12-deploy-packaged.yaml --region eu-west-2
 ```
 
 {{% notice warning %}}
@@ -44,14 +44,14 @@ Sometimes a CloudFormation template deployment will fail due to syntax errors in
 Let's validate a template.
 
 ```bash
-aws cloudformation validate-template --template-body file://code/80-package-and-deploy/02-lab12-bad-template.yaml
+aws cloudformation validate-template --template-body file://code/60-package-and-deploy/02-lab12-bad-template.yaml
 ```
 
 Notice what happens!  
 
 Try to fix the errors, then validate the template again.
 
-If you want to see the fixed version you can find it here `code/80-package-and-deploy/02-lab12-bad-template-solution.yaml`
+If you want to see the fixed version you can find it here `code/60-package-and-deploy/02-lab12-bad-template-Solution.yaml`
 
 ## Deploying a template using the CLI
 
@@ -63,7 +63,7 @@ You can use the `--parameter-overrides` option to specify parameters in the temp
 Let's deploy a CloudFormation template using the CLI.
 
 ```bash
-aws cloudformation deploy --template-file code/80-package-and-deploy/01-lab12-deploy-packaged.yaml --stack-name cfn-workshop-deploy --parameter-overrides "EnvType=Prod" --capabilities CAPABILITY_IAM --region eu-west-2
+aws cloudformation deploy --template-file code/60-package-and-deploy/01-lab12-deploy-packaged.yaml --stack-name cfn-workshop-deploy --parameter-overrides "EnvType=Prod" --capabilities CAPABILITY_IAM --region eu-west-2
 ```
 
 {{% notice warning %}}

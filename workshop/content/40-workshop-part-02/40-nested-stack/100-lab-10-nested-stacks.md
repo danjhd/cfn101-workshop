@@ -29,9 +29,8 @@ The next diagram represents the high-level overview of the infrastructure:
 
 ![nested-stack-architecture](../ns-architecture.png)
 
-You will find the working directory in `code/60-nested-stack/01-working directory`. In the rest of this lab, you should add your code to the templates here.
-
-You can find the working solutions in `code/60-nested-stack/02-solution`. You can reference this against your code.
+You will find the working files in `code/40-nested-stack`. In the rest of this lab, you should add your code to the templates here.
+The solution can be found in the same folder with a `-Solution` suffix to the matching file name. You can reference these against your code.
 
 **Let's start..**
 
@@ -67,16 +66,16 @@ If you don't have an S3 bucket, please go back to [Lab01](../../../30-workshop-p
 
 ### Create VPC Nested Stack
 
-The VPC template has been created for you. It is titled `vpc.yaml`. This template will create VPC stack with 2 Public Subnets, an Internet Gateway, and Route tables.
+The VPC template has been created for you. It is titled `02-lab10-vpc.yaml`. This template will create VPC stack with 2 Public Subnets, an Internet Gateway, and Route tables.
 
 #### 1. Create VPC parameters in main template
 
 {{% notice note %}} 
-All of the files referenced in this lab can be found within `code/60-nested-stack/01-working directory`
+All of the files referenced in this lab can be found within `code/40-nested-stack`
 {{% /notice %}}
 
-If you look in the file `vpc.yaml` file, you will notice that there are some parameters in the _Parameters_ section of the template.
-The parameters are added to the main template so that they can be passed to the nested stack. Copy the code below to the  _Parameters_ section of the `main.yaml` template.
+If you look in the file `02-lab10-vpc.yaml` file, you will notice that there are some parameters in the _Parameters_ section of the template.
+The parameters are added to the main template so that they can be passed to the nested stack. Copy the code below to the  _Parameters_ section of the `01-lab10-main.yaml` template.
 
 ```yaml
   AvailabilityZones:
@@ -113,7 +112,7 @@ The parameters are added to the main template so that they can be passed to the 
 #### 2. Create the VPC resource in the main template
 In the code below, note that passing parameter values to resources is done in the same way as using a single standalone template. Make sure that parameter name in the main template matches parameter name in the VPC template.
 
-Add this code in the _Resources_ section of the main template (`main.yaml`)
+Add this code in the _Resources_ section of the main template (`01-lab10-main.yaml`)
 
 ```yaml
   VpcStack:
@@ -132,7 +131,7 @@ Add this code in the _Resources_ section of the main template (`main.yaml`)
 
 1. Navigate to your S3 bucket in the console and select it.
 1. Click on _Upload_ button -> _Add files_.
-1. Locate the `vpc.yaml` file and select it.
+1. Locate the `02-lab10-vpc.yaml` file and select it.
 1. Click _Upload_ button to upload the file.
 
 #### 4. Deploy the VPC Nested Stack
@@ -140,7 +139,7 @@ Add this code in the _Resources_ section of the main template (`main.yaml`)
 1. Navigate to CloudFormation in the console and click _Create stack With new resources (standard)_.
 1. In **Prepare template** select _Template is ready_.
 1. In **Template source** select _Upload a template file_.
-1. Choose a file `main.yaml`.
+1. Choose a file `01-lab10-main.yaml`.
 1. Enter a stack name. For example, cfn-workshop-nested-stack
 1. For the `AvailabilityZones` parameter, select 2 AZs.
 1. For the `S3BucketName` provide the name of the bucket you have noted down in "Prepare S3 bucket" section.
@@ -154,7 +153,7 @@ Add this code in the _Resources_ section of the main template (`main.yaml`)
 
 The IAM instance role resource has been removed from the ec2 template for you.
 
-1. Open `code/60-nested-stack/01-working directory/iam.yaml`.
+1. Open `code/40-nested-stack/03-lab10-iam.yaml`.
 1. Copy the code below to the _Resources_ section of the template.
 
 ```yaml
@@ -181,13 +180,13 @@ The IAM instance role resource has been removed from the ec2 template for you.
 ```
 
 #### 2. Create IAM resource in main template
-Copy the code below to the _Resources_ section of the `main.yaml` template.
+Copy the code below to the _Resources_ section of the `01-lab10-main.yaml` template.
 
 ```yaml
   IamStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.${AWS::Region}.${AWS::URLSuffix}/iam.yaml
+      TemplateURL: !Sub https://${S3BucketName}.s3.${AWS::Region}.${AWS::URLSuffix}/03-lab10-iam.yaml
       TimeoutInMinutes: 10
 ```
 
@@ -209,12 +208,12 @@ Update the previously created stack with a new template.
 
 #### 1. Create EC2 parameters in main template
 
-Similarly to VPC template, if you look into _Parameters_ section of the `ec2.yaml` template
+Similarly to VPC template, if you look into _Parameters_ section of the `04-lab10-ec2.yaml` template
 there are three parameters:
 
 * `SubnetId` - this property will be passed from VPC stack once the VPC stack is created.
 * `EnvironmentType` - this property has a default value and is likely to change often, so let's add this one.
-* `AmiID` - this property has default value, it can be left out from the main template.
+* `AmiID` - this property has a default value, it can be left out from the main template.
 
 Add the code below to the _Parameters_ section of the main template:
 ```yaml
@@ -231,23 +230,23 @@ Add the code below to the _Parameters_ section of the main template:
 
 #### 2. Create EC2 resource in main template
 
-Copy the code below to the _Resources_ section of the `main.yaml` template.
+Copy the code below to the _Resources_ section of the `01-lab10-main.yaml` template.
 ```yaml
   EC2Stack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.${AWS::Region}.${AWS::URLSuffix}/ec2.yaml
+      TemplateURL: !Sub https://${S3BucketName}.s3.${AWS::Region}.${AWS::URLSuffix}/04-lab10-ec2.yaml
       TimeoutInMinutes: 20
 ```
 
 #### 3. Add EnvironmentType to EC2 stack
 
-Add the `EnvironmentType` parameter to the EC2 stack in the `main.yaml template`.
+Add the `EnvironmentType` parameter to the EC2 stack in the `01-lab10-main.yaml template`.
 ```yaml {hl_lines=[7]}
   EC2Stack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.${AWS::Region}.${AWS::URLSuffix}/ec2.yaml
+      TemplateURL: !Sub https://${S3BucketName}.s3.${AWS::Region}.${AWS::URLSuffix}/04-lab10-ec2.yaml
       TimeoutInMinutes: 20
       Parameters:
         EnvironmentType: !Ref EnvironmentType
@@ -263,7 +262,7 @@ Before you update your CloudFormation nested stack, there are a couple more thin
 
 ##### 1. Prepare the security group resource
 
-1. Open up `ec2.yaml` and locate the `WebServerSecurityGroup` resource.
+1. Open up `04-lab10-ec2.yaml` and locate the `WebServerSecurityGroup` resource.
 1. Add `VpcId` property and reference VpcId parameter. Your security group resource should look like the code below.
 
 ```yaml {hl_lines=[10]}
@@ -279,7 +278,7 @@ Before you update your CloudFormation nested stack, there are a couple more thin
       VpcId: !Ref VpcId
 ```
 
-1. Next, create two parameters, `VpcId` and `SubnetId` in _Parameters_ section of `ec2.yaml`.
+1. Next, create two parameters, `VpcId` and `SubnetId` in _Parameters_ section of `04-lab10-ec2.yaml`.
 
 ```yaml
   VpcId:
@@ -296,7 +295,7 @@ Before you update your CloudFormation nested stack, there are a couple more thin
 To pass the variable from one stack to another, you need to create an output containing the value in the stack that will be passing it on.
 Using the intrinsic function `!GetAtt`, CloudFormation can access the value from that stack and will pass it on as a parameter.
 
-Add the code below to the `vpc.yaml` template.
+Add the code below to the `02-lab10-vpc.yaml` template.
 ```yaml
 Outputs:
   VpcId:
@@ -311,12 +310,12 @@ Outputs:
 
 ##### 3. Add VpcId to _EC2Stack_ stack
 
-Add `VpcId` and `SubnetId` parameters to the EC2 stack in the `main.yaml` template.
+Add `VpcId` and `SubnetId` parameters to the EC2 stack in the `01-lab10-main.yaml` template.
 ```yaml {hl_lines=[8,9]}
   EC2Stack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.${AWS::Region}.${AWS::URLSuffix}/ec2.yaml
+      TemplateURL: !Sub https://${S3BucketName}.s3.${AWS::Region}.${AWS::URLSuffix}/04-lab10-ec2.yaml
       TimeoutInMinutes: 20
       Parameters:
         EnvironmentType: !Ref EnvironmentType
@@ -326,7 +325,7 @@ Add `VpcId` and `SubnetId` parameters to the EC2 stack in the `main.yaml` templa
 
 ##### 4. Prep IAM template
 
-Open up `iam.yaml` and add the code below.
+Open up `03-lab10-iam.yaml` and add the code below.
 ```yaml
 Outputs:
   WebServerInstanceProfile:
@@ -335,7 +334,7 @@ Outputs:
 
 ##### 5. Prep EC2 template
 
-1. Open up `ec2.yaml`
+1. Open up `04-lab10-ec2.yaml`
 1. Create the parameter `WebServerInstanceProfile` in the _Parameters_ section of the template.
 ```yaml
   WebServerInstanceProfile:
@@ -345,12 +344,12 @@ Outputs:
 
 ##### 6. Add WebServerInstanceProfile to _EC2Stack_ stack
 
-Add the `WebServerInstanceProfile` parameter to the EC2 stack in the `main.yaml` template.
+Add the `WebServerInstanceProfile` parameter to the EC2 stack in the `01-lab10-main.yaml` template.
 ```yaml {hl_lines=[10]}
   EC2Stack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.${AWS::Region}.${AWS::URLSuffix}/ec2.yaml
+      TemplateURL: !Sub https://${S3BucketName}.s3.${AWS::Region}.${AWS::URLSuffix}/04-lab10-ec2.yaml
       TimeoutInMinutes: 20
       Parameters:
         EnvironmentType: !Ref EnvironmentType
@@ -360,9 +359,9 @@ Add the `WebServerInstanceProfile` parameter to the EC2 stack in the `main.yaml`
 ```
 
 #### 5. Upload the EC2 stack to S3
-Before you can deploy the updated nested stack, you must update the templates in your S3 bucket that are referenced by the parent template, `main.yaml`.
+Before you can deploy the updated nested stack, you must update the templates in your S3 bucket that are referenced by the parent template, `01-lab10-main.yaml`.
 
-Similar to the [uploading the VPC stack](#3-upload-the-vpc-stack-to-s3) in a previous step, upload the `ec2.yaml` and `iam.yaml` templates to your S3 bucket.
+Similar to the [uploading the VPC stack](#3-upload-the-vpc-stack-to-s3) in a previous step, upload the `04-lab10-ec2.yaml` and `03-lab10-iam.yaml` templates to your S3 bucket.
 
 #### 6. Deploy EC2 Nested Stack
 
