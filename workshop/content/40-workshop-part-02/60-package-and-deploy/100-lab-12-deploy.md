@@ -76,6 +76,20 @@ You may recall when using the console, you are required you to acknowledge that 
 
 When using the CLI, you are also required to acknowledge this stack might create resources that can affect IAM permissions. This is done using the `--capabilities` flag, as demonstrated in the previous example. Read more about the possible capabilities in the [`aws cloudformation deploy` documentation](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/deploy/index.html)
 
+---
+
+### Clean up
+
+Follow these steps to clean up created resources:
+
+1. In in the **[CloudFormation console](https://console.aws.amazon.com/cloudformation)**, select one of the stacks you have created in this lab. For example `cfn-workshop-nested-stack`.
+1. In the top right corner, click on **Delete**.
+1. In the pop-up window click on **Delete stack**.
+1. You can click the **refresh** button a few times until you see in the status **DELETE_COMPLETE**.
+1. Repeat for all the other stacks created in the workshop.
+
+---
+
 ## Conclusion
 
 Using the CLI is a powerful way to deploy CloudFormation templates. The `package` command simplifies the deployment of templates that use features such as nested stacks or refer to other local assets. The `validate` command can speed up the development of templates by catching errors more quickly. The `deploy` command allows you to deploy CloudFormation templates in and automated and unattended way, such as part of a CI/CD pipeline.
