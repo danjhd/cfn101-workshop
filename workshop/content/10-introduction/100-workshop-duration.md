@@ -18,7 +18,7 @@ weight: 100
 
 #### CFN 201 - Part 02
 
-+ The second part will take approximately 3 hours.
++ The second part will take approximately 2 hours.
 
 ## Cost
 
